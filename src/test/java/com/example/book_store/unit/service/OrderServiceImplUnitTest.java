@@ -2,7 +2,6 @@ package com.example.book_store.unit.service;
 
 import com.example.book_store.dao.OrderDao;
 import com.example.book_store.exception.CustomException;
-import com.example.book_store.model.Order;
 import com.example.book_store.service.OrderServiceImpl;
 
 import org.bson.types.ObjectId;
@@ -17,7 +16,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.boot.test.context.SpringBootTest;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest

@@ -7,7 +7,6 @@ import com.example.book_store.model.Buyer;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 
-import dev.morphia.Datastore;
 import dev.morphia.Morphia;
 import dev.morphia.dao.BasicDAO;
 import dev.morphia.query.Query;

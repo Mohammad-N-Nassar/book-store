@@ -20,7 +20,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
@@ -64,7 +63,7 @@ public class BookServiceImplUnitTest {
 
 	@Test
 	void getBooks_ReturnsListOfTypeBooks() {
-		when(bookDao.getBooks()).thenReturn(new ArrayList<Book>());
+		when(bookDao.getBooks()).thenReturn(new ArrayList<>());
 		Assertions.assertEquals(bookService.getBooks(), new ArrayList<Book>());
 		verify(bookDao).getBooks();
 	}
