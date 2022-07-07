@@ -95,7 +95,7 @@ public class OrderDaoImpl extends BasicDAO<Order, ObjectId> implements OrderDao 
 	 */
 	@Override
 	public Order update(Order order) throws CustomException {
-		if (exists("id", order.getOrderId())) {
+		if (exists("_id", order.getOrderId())) {
 			save(order);
 			return order;
 		} else {
