@@ -1,17 +1,25 @@
 package com.example.book_store.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.Id;
 import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.core.mapping.MongoId;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 @Entity("books")
 public class Book {
 
 	@Id
+	@MongoId
 	@JsonSerialize(using= ToStringSerializer.class)
 	private ObjectId id;
 	private String name;
@@ -19,6 +27,9 @@ public class Book {
 	private ObjectId author;
 	private double price;
 	private String category;
+	@JsonDeserialize(using = LocalDateDeserializer.class)
+	@JsonSerialize(using = LocalDateSerializer.class)
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	private LocalDate publish_date;
 	private int quantity;
 	private int sold;

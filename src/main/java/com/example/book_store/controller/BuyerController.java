@@ -3,15 +3,20 @@ package com.example.book_store.controller;
 
 import com.example.book_store.exception.CustomException;
 import com.example.book_store.model.Buyer;
+import com.example.book_store.model.OrderDto;
 import com.example.book_store.service.BuyerService;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.print.attribute.standard.Media;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,10 +29,14 @@ public class BuyerController {
 	BuyerService buyerService;
 
 	@PostMapping("/add")
-	public ResponseEntity<Map<String, Object>> add(@RequestBody Buyer buyer) throws CustomException {
-		buyerService.add(buyer);
+	public ResponseEntity<Map<String, Object>> add(@RequestParam String buyer) throws CustomException, JsonProcessingException {
+		ObjectMapper objectMapper = new ObjectMapper();
+		Buyer mappedBuyer = objectMapper.readValue(buyer, Buyer.class);
+		mappedBuyer.setId(new ObjectId());
+		buyerService.add(mappedBuyer);
+
 		Map<String, Object> map = new HashMap<>();
-		map.put("Message", "Buyer with id " + buyer.getId().toString() + " added successfully.");
+		map.put("Message", "Buyer with id " + mappedBuyer.getId().toString() + " added successfully.");
 		map.put("Status", HttpStatus.OK);
 		map.put("Timestamp", System.currentTimeMillis());
 		return new ResponseEntity<>(map, HttpStatus.OK);
@@ -53,8 +62,13 @@ public class BuyerController {
 		return new ResponseEntity<>(map, HttpStatus.OK);
 	}
 
-	@PutMapping("/update")
-	public Buyer update(@RequestBody Buyer buyer) throws CustomException {
-		return buyerService.update(buyer);
+	@PutMapping(
+			value = "/update",
+			consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
+	)
+	public Buyer update(@RequestParam String buyer) throws CustomException, JsonProcessingException {
+		ObjectMapper objectMapper = new ObjectMapper();
+		Buyer mappedBuyer = objectMapper.readValue(buyer, Buyer.class);
+		return buyerService.update(mappedBuyer);
 	}
 }

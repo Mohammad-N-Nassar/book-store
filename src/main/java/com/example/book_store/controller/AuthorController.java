@@ -6,10 +6,13 @@ import com.example.book_store.model.Author;
 
 import com.example.book_store.service.AuthorService;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,11 +28,14 @@ public class AuthorController {
 	AuthorService authorService;
 
 	@PostMapping("/add")
-	public ResponseEntity<Map<String, Object>> add(@RequestBody Author author) throws CustomException {
-		authorService.add(author);
+	public ResponseEntity<Map<String, Object>> add(@RequestParam String author) throws CustomException, JsonProcessingException {
+		ObjectMapper objectMapper = new ObjectMapper();
+		Author mappedAuthor = objectMapper.readValue(author, Author.class);
+		mappedAuthor.setId(new ObjectId());
+		authorService.add(mappedAuthor);
 
 		Map<String, Object> map = new HashMap<>();
-		map.put("Message", "Author with id " + author.getId().toString() + " added successfully.");
+		map.put("Message", "Author with id " + mappedAuthor.getId().toString() + " added successfully.");
 		map.put("Status", HttpStatus.OK);
 		map.put("Timestamp", System.currentTimeMillis());
 		return new ResponseEntity<>(map, HttpStatus.OK);
@@ -55,8 +61,13 @@ public class AuthorController {
 		return new ResponseEntity<>(map, HttpStatus.OK);
 	}
 
-	@PutMapping("/update")
-	public Author update(@RequestBody Author author) throws CustomException {
-		return authorService.update(author);
+	@PutMapping(
+			value = "/update",
+			consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
+	)
+	public Author update(@RequestParam String author) throws CustomException, JsonProcessingException {
+		ObjectMapper objectMapper = new ObjectMapper();
+		Author mappedAuthor = objectMapper.readValue(author, Author.class);
+		return authorService.update(mappedAuthor);
 	}
 }
