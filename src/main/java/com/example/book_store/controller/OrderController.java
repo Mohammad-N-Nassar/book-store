@@ -2,6 +2,7 @@ package com.example.book_store.controller;
 
 import com.example.book_store.exception.CustomException;
 
+import com.example.book_store.model.Order;
 import com.example.book_store.service.OrderService;
 
 import org.bson.types.ObjectId;
@@ -11,14 +12,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-@RestController("/api/order")
+@RestController
+@RequestMapping("/api/order")
 public class OrderController {
 
 	@Autowired
@@ -33,5 +34,10 @@ public class OrderController {
 		map.put("Status", HttpStatus.OK);
 		map.put("Timestamp", System.currentTimeMillis());
 		return new ResponseEntity<>(map, HttpStatus.OK);
+	}
+
+	@GetMapping("/orders")
+	public List<Order> getOrders() {
+		return orderService.getOrders();
 	}
 }
