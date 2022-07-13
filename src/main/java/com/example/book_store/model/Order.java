@@ -1,9 +1,15 @@
 package com.example.book_store.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+
 import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.Id;
+
 import org.bson.types.ObjectId;
 
 import java.time.LocalDateTime;
@@ -15,6 +21,9 @@ public class Order {
 	private ObjectId orderId;
 	@JsonSerialize(using= ToStringSerializer.class)
 	private ObjectId buyerId;
+	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
+	@JsonSerialize(using = LocalDateTimeSerializer.class)
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	private LocalDateTime timeStamp;
 	private BillDto billInfo;
 
