@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @SpringBootTest
 public class OrderDaoImplUnitTest {
@@ -41,7 +41,7 @@ public class OrderDaoImplUnitTest {
 		embeddedMongoDB.start();
 
 		order= new Order();
-		order.setTimeStamp(LocalDateTime.now());
+		order.setTimeStamp(new Date(System.currentTimeMillis()));
 		order.setBillInfo(new BillDto());
 		order.setOrderId(new ObjectId("62b48cca7d3c7071cadc569d"));
 		order.setBuyerId(new ObjectId("62b332737a62a37952e9509c"));

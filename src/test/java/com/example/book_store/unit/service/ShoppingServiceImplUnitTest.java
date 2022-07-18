@@ -3,33 +3,33 @@ package com.example.book_store.unit.service;
 import com.example.book_store.dao.BookDao;
 import com.example.book_store.dao.BuyerDao;
 import com.example.book_store.dao.OrderDao;
-
 import com.example.book_store.exception.CustomException;
 import com.example.book_store.model.BillDto;
 import com.example.book_store.model.Book;
-import com.example.book_store.service.BuyServiceImpl;
+import com.example.book_store.service.ShoppingServiceImpl;
 
 import org.bson.types.ObjectId;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static org.mockito.Mockito.*;
 
+
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
-public class BuyServiceImplUnitTest {
+public class ShoppingServiceImplUnitTest {
 
 	@Mock
 	static BuyerDao buyerDao;
@@ -37,26 +37,29 @@ public class BuyServiceImplUnitTest {
 	static BookDao bookDao;
 	@Mock
 	static OrderDao orderDao;
-	static BuyServiceImpl buyService;
+	static ShoppingServiceImpl shoppingService;
 	Book book;
 
 	@BeforeEach
 	void setUp(){
-		buyService = new BuyServiceImpl(buyerDao,bookDao,orderDao);
+		shoppingService = new ShoppingServiceImpl();
+		shoppingService.bookDao = bookDao;
+		shoppingService.orderDao = orderDao;
+		shoppingService.buyerDao = buyerDao;
+
 		book = new Book();
 		book.setId(new ObjectId());
 		book.setAuthor(new ObjectId("62b318f5875e6945ac71d3a4"));
 		book.setName("book to test JUnit1");
 		book.setCategory("Suspense");
 		book.setPrice(1.23);
-		book.setPublish_date(LocalDate.now());
+		book.setPublish_date(new Date(System.currentTimeMillis()));
 		book.setQuantity(22);
 		book.setSold(0);
 	}
 
-	@DisplayName("Test happy scenario, with an id and list of ids")
 	@Test
-	void buyBooksTest() throws CustomException {
+	void buyBooksTest_EnoughBooksExist_DoNotThrow() throws CustomException {
 		when(bookDao.booksAvailable(any())).thenReturn(true);
 		when(bookDao.getById(any())).thenReturn(book);
 
@@ -65,44 +68,53 @@ public class BuyServiceImplUnitTest {
 		list.add(new ObjectId());
 		list.add(new ObjectId());
 
-		Assertions.assertNotNull(buyService.buyBooks(new ObjectId(),list));
+		ObjectId id = new ObjectId();
 
-		verify(buyerDao).addToBooks(any(),any());
-		verify(bookDao, times(list.size())).decreaseQuantity(any(), anyInt());
-		verify(bookDao, times(list.size())).increaseSold(any(), anyInt());
+		Assertions.assertNotNull(shoppingService.buyBooks(id,list));
+
+		verify(buyerDao).addToBooks(list, id);
+		verify(bookDao, times(list.size())).decreaseQuantity(any(ObjectId.class), anyInt());
+		verify(bookDao, times(list.size())).increaseSold(any(ObjectId.class), anyInt());
 	}
 
 	@Test
 	void buyBooks_EmptyList_ThrowsException() throws CustomException {
 		doThrow(CustomException.class).when(bookDao).booksAvailable(anyMap());
-		Assertions.assertThrows(CustomException.class, () -> buyService.buyBooks(new ObjectId(),new ArrayList<>()));
+		Assertions.assertThrows(CustomException.class, () -> shoppingService.buyBooks(new ObjectId(),new ArrayList<>()));
 		verify(bookDao).booksAvailable(anyMap());
 	}
 
 	@Test
 	void buyBooks_NotEnoughQuantity_ThrowsCustomException() throws CustomException {
 		doThrow(CustomException.class).when(bookDao).booksAvailable(any());
-		Assertions.assertThrows(CustomException.class, () -> buyService.buyBooks(new ObjectId(), new ArrayList<>()));
+		Assertions.assertThrows(CustomException.class, () -> shoppingService.buyBooks(new ObjectId(), new ArrayList<>()));
 	}
 
 	@Test
 	void buyBooks_BuyerNotExist_ThrowsCustomException() throws CustomException {
 		when(bookDao.booksAvailable(any())).thenReturn(true);
 		doThrow(CustomException.class).when(buyerDao).addToBooks(anyList(), any());
-		Assertions.assertThrows(CustomException.class, () -> buyService.buyBooks(new ObjectId(), new ArrayList<>()));
+		Assertions.assertThrows(CustomException.class, () -> shoppingService.buyBooks(new ObjectId(), new ArrayList<>()));
 	}
 
 	@Test
 	void buyBooks_OrderIdAlreadyExists_ThrowsException() throws CustomException {
 		when(bookDao.booksAvailable(any())).thenReturn(true);
 		doThrow(CustomException.class).when(orderDao).add(any());
-		Assertions.assertThrows(CustomException.class, () -> buyService.buyBooks(new ObjectId(), new ArrayList<>()));
+		Assertions.assertThrows(CustomException.class, () -> shoppingService.buyBooks(new ObjectId(), new ArrayList<>()));
 		verify(orderDao).add(any());
 	}
 
 	@Test
 	void buyBooks_HappyScenario_BillDtoObjectReturned() throws CustomException {
 		when(bookDao.booksAvailable(any())).thenReturn(true);
-		Assertions.assertEquals(BillDto.class, buyService.buyBooks(new ObjectId(), new ArrayList<>()).getClass());
+		Assertions.assertEquals(BillDto.class, shoppingService.buyBooks(new ObjectId(), new ArrayList<>()).getClass());
+	}
+
+	@Test
+	void deleteById_IdNotExist_ThrowsCustomException() throws CustomException {
+		doThrow(CustomException.class).when(orderDao).delete(any(ObjectId.class));
+		Assertions.assertThrows(CustomException.class, () -> shoppingService.deleteById(new ObjectId("62b332737a61234562e9509c")));
+		verify(orderDao).delete(new ObjectId("62b332737a61234562e9509c"));
 	}
 }

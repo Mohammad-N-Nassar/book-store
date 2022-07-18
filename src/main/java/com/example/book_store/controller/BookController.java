@@ -11,7 +11,6 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,18 +29,15 @@ public class BookController {
 		this.bookService = bookService;
 	}
 
-	@PostMapping(
-			value = "/add",
-			consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
-	)
+	@PostMapping(value = "/add")
 	public ResponseEntity<Map<String, Object>> add(@RequestParam String book) throws CustomException, JsonProcessingException {
 		ObjectMapper objectMapper = new ObjectMapper();
 		Book mappedBook = objectMapper.readValue(book, Book.class);
-		mappedBook.setId(new ObjectId());
+//		mappedBook.setId(new ObjectId());
 		bookService.add(mappedBook);
 
 		Map<String, Object> map = new HashMap<>();
-		map.put("Message", "Book with id " + mappedBook.getId().toString() + " added successfully.");
+		map.put("Message", "Book with id " + mappedBook.getId() + " added successfully.");
 		map.put("Status", HttpStatus.OK);
 		map.put("Timestamp", System.currentTimeMillis());
 		return new ResponseEntity<>(map, HttpStatus.OK);
@@ -62,26 +58,20 @@ public class BookController {
 		bookService.deleteById(id);
 
 		Map<String, Object> map = new HashMap<>();
-		map.put("Message", "Book with id " + id.toString() + " deleted successfully.");
+		map.put("Message", "Book with id " + id + " deleted successfully.");
 		map.put("Status", HttpStatus.OK);
 		map.put("Timestamp", System.currentTimeMillis());
 		return new ResponseEntity<>(map, HttpStatus.OK);
 	}
 
-	@PutMapping(
-			value = "/update",
-			consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
-	)
+	@PutMapping(value = "/update")
 	public Book update(@RequestParam String book) throws CustomException, JsonProcessingException {
 		ObjectMapper objectMapper = new ObjectMapper();
 		Book mappedBook = objectMapper.readValue(book, Book.class);
 		return bookService.update(mappedBook);
 	}
 
-	@PostMapping(
-			value = "/increaseQuantity",
-			consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
-	)
+	@PostMapping(value = "/increaseQuantity")
 	public ResponseEntity<Map<String, Object>> increaseQuantity(@RequestParam ObjectId id, @RequestParam int quantity) throws CustomException {
 		bookService.increaseQuantity(id, quantity);
 
@@ -91,6 +81,4 @@ public class BookController {
 		map.put("Timestamp", System.currentTimeMillis());
 		return new ResponseEntity<>(map, HttpStatus.OK);
 	}
-
-
 }

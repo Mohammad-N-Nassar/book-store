@@ -12,7 +12,6 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,7 +34,7 @@ public class AuthorController {
 		authorService.add(mappedAuthor);
 
 		Map<String, Object> map = new HashMap<>();
-		map.put("Message", "Author with id " + mappedAuthor.getId().toString() + " added successfully.");
+		map.put("Message", "Author with id " + mappedAuthor.getId() + " added successfully.");
 		map.put("Status", HttpStatus.OK);
 		map.put("Timestamp", System.currentTimeMillis());
 		return new ResponseEntity<>(map, HttpStatus.OK);
@@ -55,16 +54,13 @@ public class AuthorController {
 	public ResponseEntity<Map<String, Object>> deleteById(@PathVariable ObjectId id) throws CustomException {
 		authorService.deleteById(id);
 		Map<String, Object> map = new HashMap<>();
-		map.put("Message", "Author with id " + id.toString() + " deleted successfully.");
+		map.put("Message", "Author with id " + id + " deleted successfully.");
 		map.put("Status", HttpStatus.OK);
 		map.put("Timestamp", System.currentTimeMillis());
 		return new ResponseEntity<>(map, HttpStatus.OK);
 	}
 
-	@PutMapping(
-			value = "/update",
-			consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
-	)
+	@PutMapping(value = "/update")
 	public Author update(@RequestParam String author) throws CustomException, JsonProcessingException {
 		ObjectMapper objectMapper = new ObjectMapper();
 		Author mappedAuthor = objectMapper.readValue(author, Author.class);

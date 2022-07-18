@@ -8,10 +8,10 @@ import com.mongodb.MongoClientURI;
 
 import dev.morphia.Morphia;
 import dev.morphia.dao.BasicDAO;
-import dev.morphia.query.Query;
 
 import org.bson.types.ObjectId;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -36,13 +36,11 @@ public class AuthorDaoImpl extends BasicDAO<Author, ObjectId> implements AuthorD
 	 */
 	@Override
 	public Author getById(ObjectId id) throws CustomException {
-		Author author;
 		try {
-			Query<Author> query = find();
-			author = query.filter("_id", id).find().next();
+			Author author = createQuery().filter("_id", id).find().next();
 			return author;
 		} catch(NoSuchElementException e) {
-			throw new CustomException("Author with id " + id + " not found!");
+			throw new CustomException("Author with id " + id + " not found!", HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -53,11 +51,10 @@ public class AuthorDaoImpl extends BasicDAO<Author, ObjectId> implements AuthorD
 	 */
 	@Override
 	public void add(Author author) throws CustomException {
-		String id = author.getId().toString();
-		if ( !exists("id", author.getId()) ) {
+		if (!exists("id", author.getId())) {
 			save(author);
 		} else {
-			throw new CustomException("Author with id " + id + " already exists!");
+			throw new CustomException("Author with id " + author.getId() + " already exists!", HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -71,7 +68,7 @@ public class AuthorDaoImpl extends BasicDAO<Author, ObjectId> implements AuthorD
 		if(exists(id)) {
 			deleteByQuery( find().filter("_id", id) );
 		} else {
-			throw new CustomException("Author with id " + id + " not found!");
+			throw new CustomException("Author with id " + id + " not found!", HttpStatus.NOT_FOUND);
 		}
 	}
 
@@ -81,8 +78,7 @@ public class AuthorDaoImpl extends BasicDAO<Author, ObjectId> implements AuthorD
 	 */
 	@Override
 	public List<Author> getAuthors() {
-		Query<Author> query = find();
-		return query.find().toList();
+		return createQuery().find().toList();
 	}
 
 	/**
@@ -97,13 +93,13 @@ public class AuthorDaoImpl extends BasicDAO<Author, ObjectId> implements AuthorD
 			save(author);
 			return author;
 		} else {
-			throw new CustomException("Author with id " + author.getId() + " doesn't exist!");
+			throw new CustomException("Author with id " + author.getId() + " doesn't exist!", HttpStatus.NOT_FOUND);
 		}
 	}
 
 	/**
 	 * Checks if a document with the given id exists
-	 * @param id buyer id
+	 * @param id author id
 	 * @return boolean true if document is present
 	 */
 	@Override

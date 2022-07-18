@@ -1,18 +1,22 @@
 package com.example.book_store.model;
 
+import com.example.book_store.serialize.ObjectIdDeserializer;
+import com.example.book_store.serialize.ObjectIdSerializer;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 
 import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.Id;
 
 import org.bson.types.ObjectId;
 
-@Entity("authors")
+@Entity("author")
 public class Author {
 
 	@Id
-	@JsonSerialize(using= ToStringSerializer.class)
+	@JsonSerialize(using = ObjectIdSerializer.class)
+	@JsonDeserialize(using = ObjectIdDeserializer.class)
 	private ObjectId id;
 	private String name;
 	private String phone_number;

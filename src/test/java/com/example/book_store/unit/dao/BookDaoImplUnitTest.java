@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
-import java.time.LocalDate;
+import java.util.Date;
 
 @SpringBootTest
 public class BookDaoImplUnitTest {
@@ -45,7 +45,7 @@ public class BookDaoImplUnitTest {
 		book.setName("book to test JUnit");
 		book.setCategory("Suspense");
 		book.setPrice(1.23);
-		book.setPublish_date(LocalDate.now());
+		book.setPublish_date(new Date(System.currentTimeMillis()));
 		book.setQuantity(22);
 		book.setSold(0);
 	}
@@ -120,7 +120,7 @@ public class BookDaoImplUnitTest {
 	}
 
 	@Test
-	void getAuthors_ReturnListOfAuthors() throws CustomException {
+	void getBooks_ReturnListOfBooks() throws CustomException {
 		bookDao.add(book);
 		book.setId(new ObjectId());
 		bookDao.add(book);

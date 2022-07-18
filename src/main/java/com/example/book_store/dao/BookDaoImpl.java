@@ -13,6 +13,7 @@ import dev.morphia.query.UpdateOperations;
 
 import org.bson.types.ObjectId;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -38,13 +39,11 @@ public class BookDaoImpl extends BasicDAO<Book, ObjectId> implements BookDao {
 	 */
 	@Override
 	public Book getById(ObjectId id) throws CustomException {
-		Book book;
 		try {
-			Query<Book> query = find();
-			book = query.filter("_id",id).find().next();
+			Book book = createQuery().filter("_id",id).find().next();
 			return book;
 		} catch(NoSuchElementException e) {
-			throw new CustomException("Book with id " + id + " not found!");
+			throw new CustomException("Book with id " + id + " not found!", HttpStatus.NOT_FOUND);
 		}
 	}
 
@@ -55,11 +54,10 @@ public class BookDaoImpl extends BasicDAO<Book, ObjectId> implements BookDao {
 	 */
 	@Override
 	public void add(Book book) throws CustomException {
-		String id = book.getId().toString();
 		if (!exists("id", book.getId())) {
 			save(book);
 		} else {
-			throw new CustomException("Book with id " + id + " already exists!");
+			throw new CustomException("Book with id " + book.getId() + " already exists!", HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -71,11 +69,11 @@ public class BookDaoImpl extends BasicDAO<Book, ObjectId> implements BookDao {
 	@Override
 	public void delete(ObjectId id) throws CustomException {
 		try {
-			Query<Book> query = find();
+			Query<Book> query = createQuery();
 			query.filter("_id",id).find().next();
 			deleteByQuery(query);
 		} catch (NoSuchElementException e) {
-			throw new CustomException("Book with id " + id + " not found!");
+			throw new CustomException("Book with id " + id + " not found!", HttpStatus.NOT_FOUND);
 		}
 	}
 
@@ -85,8 +83,7 @@ public class BookDaoImpl extends BasicDAO<Book, ObjectId> implements BookDao {
 	 */
 	@Override
 	public List<Book> getBooks() {
-		Query<Book> query = find();
-		return query.find().toList();
+		return createQuery().find().toList();
 	}
 
 	/**
@@ -100,7 +97,7 @@ public class BookDaoImpl extends BasicDAO<Book, ObjectId> implements BookDao {
 			save(book);
 			return book;
 		} else {
-			throw new CustomException("Book with id " + book.getId() + " doesn't exist!");
+			throw new CustomException("Book with id " + book.getId() + " doesn't exist!", HttpStatus.NOT_FOUND);
 		}
 	}
 
@@ -118,13 +115,13 @@ public class BookDaoImpl extends BasicDAO<Book, ObjectId> implements BookDao {
 				ObjectId id = mapElement.getKey();
 				int quantity = mapElement.getValue();
 
-				Query<Book> query = find().filter("_id", id).filter("quantity >=", quantity);
+				Query<Book> query = createQuery().filter("_id", id).filter("quantity >=", quantity);
 				if (!exists(query)) {
-					throw new CustomException("Book with id " + id + " Not Available with the quantity " + quantity + "!");
+					throw new CustomException("Book with id " + id + " Not Available with the quantity " + quantity + "!", HttpStatus.BAD_REQUEST);
 				}
 			}
 		} else {
-			throw new CustomException("There are no books chosen!");
+			throw new CustomException("There are no books chosen!", HttpStatus.BAD_REQUEST);
 		}
 		return true;
 	}
@@ -167,13 +164,13 @@ public class BookDaoImpl extends BasicDAO<Book, ObjectId> implements BookDao {
 			Query<Book> query = find();
 			update(query, updates);
 		} else {
-			throw new CustomException("Book with id " + bookId.toString() + " doesn't exist");
+			throw new CustomException("Book with id " + bookId + " doesn't exist", HttpStatus.BAD_REQUEST);
 		}
 	}
 
 	/**
 	 * Checks if a document with the given id exists
-	 * @param id buyer id
+	 * @param id book id
 	 * @return boolean true if document is present
 	 */
 	@Override

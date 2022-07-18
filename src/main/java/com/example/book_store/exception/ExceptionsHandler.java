@@ -16,10 +16,10 @@ public class ExceptionsHandler {
 	@ExceptionHandler
 	public ResponseEntity<Map<String, Object>> customExceptionHandler(CustomException customException) {
 		Map<String, Object> mapResponse = new HashMap<>();
-		mapResponse.put("Status", HttpStatus.NOT_FOUND);
+		mapResponse.put("Status", customException.getStatus());
 		mapResponse.put("Message", customException.getMessage());
 		mapResponse.put("TimeStamp", System.currentTimeMillis());
-		return new ResponseEntity<>(mapResponse, HttpStatus.NOT_FOUND);
+		return new ResponseEntity<>(mapResponse, customException.getStatus());
 	}
 
 	@ExceptionHandler
