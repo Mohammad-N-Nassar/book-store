@@ -12,6 +12,7 @@ import dev.morphia.query.Query;
 
 import org.bson.types.ObjectId;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -36,13 +37,11 @@ public class OrderDaoImpl extends BasicDAO<Order, ObjectId> implements OrderDao 
 	 */
 	@Override
 	public Order getById(ObjectId id) throws CustomException {
-		Order order;
 		try{
-			Query<Order> query = find();
-			order = query.filter("_id",id).find().next();
+			Order order = createQuery().filter("_id",id).find().next();
 			return order;
 		}catch(NoSuchElementException e){
-			throw new CustomException("Order with id " + id + " not found!");
+			throw new CustomException("Order with id " + id + " not found!", HttpStatus.NOT_FOUND);
 		}
 	}
 
@@ -53,11 +52,10 @@ public class OrderDaoImpl extends BasicDAO<Order, ObjectId> implements OrderDao 
 	 */
 	@Override
 	public void add(Order order) throws CustomException {
-		String id = order.getOrderId().toString();
 		if (!exists("_id", order.getOrderId())) {
 			save(order);
 		} else {
-			throw new CustomException("Order with id " + id + " already exists!");
+			throw new CustomException("Order with id " + order.getOrderId() + " already exists!", HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -69,11 +67,11 @@ public class OrderDaoImpl extends BasicDAO<Order, ObjectId> implements OrderDao 
 	@Override
 	public void delete(ObjectId id) throws CustomException {
 		try {
-			Query<Order> query = find();
+			Query<Order> query = createQuery();
 			query.filter("_id", id).find().next();
 			deleteByQuery(query);
 		} catch (NoSuchElementException e) {
-			throw new CustomException("Order with id " + id + " not found!");
+			throw new CustomException("Order with id " + id + " not found!", HttpStatus.NOT_FOUND);
 		}
 	}
 
@@ -83,8 +81,7 @@ public class OrderDaoImpl extends BasicDAO<Order, ObjectId> implements OrderDao 
 	 */
 	@Override
 	public List<Order> getOrders() {
-		Query<Order> query = find();
-		return query.find().toList();
+		return createQuery().find().toList();
 	}
 
 	/**
@@ -95,17 +92,17 @@ public class OrderDaoImpl extends BasicDAO<Order, ObjectId> implements OrderDao 
 	 */
 	@Override
 	public Order update(Order order) throws CustomException {
-		if (exists("_id", order.getOrderId())) {
+		if (exists(order.getOrderId())) {
 			save(order);
 			return order;
 		} else {
-			throw new CustomException("Order with id " + order.getOrderId() + " doesn't exist!");
+			throw new CustomException("Order with id " + order.getOrderId() + " doesn't exist!", HttpStatus.NOT_FOUND);
 		}
 	}
 
 	/**
 	 * Checks if a document with the given id exists
-	 * @param id buyer id
+	 * @param id order id
 	 * @return boolean true if document is present
 	 */
 	@Override

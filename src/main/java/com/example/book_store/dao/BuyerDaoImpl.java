@@ -13,6 +13,7 @@ import dev.morphia.query.Query;
 import dev.morphia.query.UpdateOperations;
 
 import org.bson.types.ObjectId;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -36,13 +37,11 @@ public class BuyerDaoImpl extends BasicDAO<Buyer, ObjectId> implements BuyerDao 
 	 */
 	@Override
 	public Buyer getById(ObjectId id) throws CustomException {
-		Buyer buyer;
 		try {
-			Query<Buyer> query = find();
-			buyer = query.filter("_id", id).find().next();
+			Buyer buyer = createQuery().filter("_id", id).find().next();
 			return buyer;
 		} catch(NoSuchElementException e) {
-			throw new CustomException("Buyer with id " + id + " not found!");
+			throw new CustomException("Buyer with id " + id + " not found!", HttpStatus.NOT_FOUND);
 		}
 	}
 
@@ -53,11 +52,10 @@ public class BuyerDaoImpl extends BasicDAO<Buyer, ObjectId> implements BuyerDao 
 	 */
 	@Override
 	public void add(Buyer buyer) throws CustomException {
-		String id = buyer.getId().toString();
 		if (!exists("id", buyer.getId())) {
 			save(buyer);
 		}else {
-			throw new CustomException("Buyer with id " + id + " already exists!");
+			throw new CustomException("Buyer with id " + buyer.getId() + " already exists!", HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -71,7 +69,7 @@ public class BuyerDaoImpl extends BasicDAO<Buyer, ObjectId> implements BuyerDao 
 		if (exists(id)) {
 			deleteByQuery(find().filter("_id", id));
 		} else {
-			throw new CustomException("Buyer with id " + id + " not found!");
+			throw new CustomException("Buyer with id " + id + " not found!", HttpStatus.NOT_FOUND);
 		}
 	}
 
@@ -81,8 +79,7 @@ public class BuyerDaoImpl extends BasicDAO<Buyer, ObjectId> implements BuyerDao 
 	 */
 	@Override
 	public List<Buyer> getBuyers() {
-		Query<Buyer> query = find();
-		return query.find().toList();
+		return createQuery().find().toList();
 	}
 
 	/**
@@ -97,7 +94,7 @@ public class BuyerDaoImpl extends BasicDAO<Buyer, ObjectId> implements BuyerDao 
 			save(buyer);
 			return buyer;
 		} else {
-			throw new CustomException("Buyer with id " + buyer.getId() + " doesn't exist!");
+			throw new CustomException("Buyer with id " + buyer.getId() + " doesn't exist!", HttpStatus.NOT_FOUND);
 		}
 	}
 
@@ -110,11 +107,11 @@ public class BuyerDaoImpl extends BasicDAO<Buyer, ObjectId> implements BuyerDao 
 	@Override
 	public void addToBooks(List<ObjectId> bookId, ObjectId buyerId) throws CustomException {
 		if (exists(buyerId)) {
-			Query<Buyer> query = find().filter("_id", buyerId);
+			Query<Buyer> query = createQuery().filter("_id", buyerId);
 			UpdateOperations<Buyer> updates = createUpdateOperations().push("books", bookId);
 			update(query, updates);
 		} else {
-			throw new CustomException("Buyer with id " + buyerId.toString() + " doesn't Exist!");
+			throw new CustomException("Buyer with id " + buyerId + " doesn't Exist!", HttpStatus.BAD_REQUEST);
 		}
 	}
 

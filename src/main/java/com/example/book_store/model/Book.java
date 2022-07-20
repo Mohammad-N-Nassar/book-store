@@ -1,33 +1,40 @@
 package com.example.book_store.model;
 
+import com.example.book_store.serialize.ObjectIdDeserializer;
+import com.example.book_store.serialize.ObjectIdSerializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+
 import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.Id;
+
 import org.bson.types.ObjectId;
 
-import java.time.LocalDate;
+import java.io.Serializable;
+import java.util.Date;
 
-@Entity("books")
+@Entity("book")
 public class Book {
 
 	@Id
-	@JsonSerialize(using= ToStringSerializer.class)
+	@JsonSerialize(using = ObjectIdSerializer.class)
+	@JsonDeserialize(using = ObjectIdDeserializer.class)
 	private ObjectId id;
 	private String name;
-	@JsonSerialize(using= ToStringSerializer.class)
+	@JsonSerialize(using = ObjectIdSerializer.class)
+	@JsonDeserialize(using = ObjectIdDeserializer.class)
 	private ObjectId author;
 	private double price;
 	private String category;
-	private LocalDate publish_date;
+	private Date publish_date;
 	private int quantity;
 	private int sold;
 
-	public LocalDate getPublish_date() {
+	public Date getPublish_date() {
 		return publish_date;
 	}
 
-	public void setPublish_date(LocalDate publish_date) {
+	public void setPublish_date(Date publish_date) {
 		this.publish_date = publish_date;
 	}
 

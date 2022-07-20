@@ -2,7 +2,6 @@ package com.example.book_store.service;
 
 import com.example.book_store.dao.BookDao;
 import com.example.book_store.dao.BuyerDao;
-
 import com.example.book_store.dao.OrderDao;
 import com.example.book_store.exception.CustomException;
 import com.example.book_store.model.BillDto;
@@ -11,30 +10,21 @@ import com.example.book_store.model.Book;
 import com.example.book_store.model.Order;
 
 import org.bson.types.ObjectId;
-import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
-public class BuyServiceImpl implements BuyService {
-	@Autowired
-	BuyerDao buyerDao;
-	@Autowired
-	BookDao bookDao;
-	@Autowired
-	OrderDao orderDao;
+public class ShoppingServiceImpl implements ShoppingService {
 
-	public BuyServiceImpl(BuyerDao buyerDao, BookDao bookDao, OrderDao orderDao) {
-		this.buyerDao = buyerDao;
-		this.bookDao = bookDao;
-		this.orderDao = orderDao;
-	}
+	@Autowired
+	public BuyerDao buyerDao;
+	@Autowired
+	public BookDao bookDao;
+	@Autowired
+	public OrderDao orderDao;
 
 	/**
 	 * Buyer buys list of books, each remaining quantity will be decreased and increase sold copies based on their occurrence in the list.
@@ -89,7 +79,7 @@ public class BuyServiceImpl implements BuyService {
 			order.setOrderId(new ObjectId());
 			order.setBuyerId(buyerId);
 			order.setBillInfo(billDto);
-			order.setTimeStamp(LocalDateTime.now());
+			order.setTimeStamp(new Date(System.currentTimeMillis()));
 			orderDao.add(order);
 		}
 		return billDto;
@@ -100,7 +90,7 @@ public class BuyServiceImpl implements BuyService {
 	 * @param books List of ObjectId contains book ids to buy
 	 * @param bookQuantity Map of ObjectId for the ids, Integer for their quantity
 	 */
-	void calculateBooksQuantity(List<ObjectId> books, Map<ObjectId, Integer> bookQuantity) {
+	private void calculateBooksQuantity(List<ObjectId> books, Map<ObjectId, Integer> bookQuantity) {
 		for (ObjectId book:books) {
 			if (bookQuantity.containsKey(book)) {
 				bookQuantity.computeIfPresent(book, (key, val) -> val + 1);
@@ -108,5 +98,24 @@ public class BuyServiceImpl implements BuyService {
 				bookQuantity.put(book, 1);
 			}
 		}
+	}
+
+	/**
+	 * Delete existing order by id
+	 * @param id id of the order to be deleted
+	 * @throws CustomException when the object doesn't exist already
+	 */
+	@Override
+	public void deleteById(ObjectId id) throws CustomException {
+		orderDao.delete(id);
+	}
+
+	/**
+	 * Get a list of all the orders objects
+	 * @return List of type Order
+	 */
+	@Override
+	public List<Order> getOrders() {
+		return orderDao.getOrders();
 	}
 }

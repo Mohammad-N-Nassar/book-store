@@ -5,6 +5,8 @@ import com.example.book_store.model.Book;
 
 import com.example.book_store.service.BookService;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -27,12 +29,15 @@ public class BookController {
 		this.bookService = bookService;
 	}
 
-	@PostMapping("/add")
-	public ResponseEntity<Map<String, Object>> add(@RequestBody Book book) throws CustomException {
-		bookService.add(book);
+	@PostMapping(value = "/add")
+	public ResponseEntity<Map<String, Object>> add(@RequestParam String book) throws CustomException, JsonProcessingException {
+		ObjectMapper objectMapper = new ObjectMapper();
+		Book mappedBook = objectMapper.readValue(book, Book.class);
+//		mappedBook.setId(new ObjectId());
+		bookService.add(mappedBook);
 
 		Map<String, Object> map = new HashMap<>();
-		map.put("Message", "Book with id " + book.getId().toString() + " added successfully.");
+		map.put("Message", "Book with id " + mappedBook.getId() + " added successfully.");
 		map.put("Status", HttpStatus.OK);
 		map.put("Timestamp", System.currentTimeMillis());
 		return new ResponseEntity<>(map, HttpStatus.OK);
@@ -53,19 +58,21 @@ public class BookController {
 		bookService.deleteById(id);
 
 		Map<String, Object> map = new HashMap<>();
-		map.put("Message", "Book with id " + id.toString() + " deleted successfully.");
+		map.put("Message", "Book with id " + id + " deleted successfully.");
 		map.put("Status", HttpStatus.OK);
 		map.put("Timestamp", System.currentTimeMillis());
 		return new ResponseEntity<>(map, HttpStatus.OK);
 	}
 
-	@PutMapping("/update")
-	public Book update(@RequestBody Book book) throws CustomException {
-		return bookService.update(book);
+	@PutMapping(value = "/update")
+	public Book update(@RequestParam String book) throws CustomException, JsonProcessingException {
+		ObjectMapper objectMapper = new ObjectMapper();
+		Book mappedBook = objectMapper.readValue(book, Book.class);
+		return bookService.update(mappedBook);
 	}
 
-	@PostMapping("/increaseQuantity/id/{id}/quantity/{quantity}")
-	public ResponseEntity<Map<String, Object>> increaseQuantity(@PathVariable ObjectId id, @PathVariable int quantity) throws CustomException {
+	@PostMapping(value = "/increaseQuantity")
+	public ResponseEntity<Map<String, Object>> increaseQuantity(@RequestParam ObjectId id, @RequestParam int quantity) throws CustomException {
 		bookService.increaseQuantity(id, quantity);
 
 		Map<String, Object> map = new HashMap<>();
@@ -74,6 +81,4 @@ public class BookController {
 		map.put("Timestamp", System.currentTimeMillis());
 		return new ResponseEntity<>(map, HttpStatus.OK);
 	}
-
-
 }

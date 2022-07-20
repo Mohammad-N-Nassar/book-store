@@ -1,31 +1,36 @@
 package com.example.book_store.model;
 
+import com.example.book_store.serialize.ObjectIdDeserializer;
+import com.example.book_store.serialize.ObjectIdSerializer;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+
 import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.Id;
 import org.bson.types.ObjectId;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Entity("buyer")
 public class Buyer {
 
 	@Id
-	@JsonSerialize(using= ToStringSerializer.class)
+	@JsonSerialize(using = ObjectIdSerializer.class)
+	@JsonDeserialize(using = ObjectIdDeserializer.class)
 	private ObjectId id;
 	private String name;
 	private String phone_number;
-	@JsonSerialize(using= ToStringSerializer.class)
-	List<ObjectId> books;
+	List<String> books;
 	private String email;
 	private int age;
 
-	public List<ObjectId> getBooks() {
+	public List<String> getBooks() {
 		return books;
 	}
 
-	public void setBooks(List<ObjectId> books) {
+	public void setBooks(List<String> books) {
 		this.books = books;
 	}
 

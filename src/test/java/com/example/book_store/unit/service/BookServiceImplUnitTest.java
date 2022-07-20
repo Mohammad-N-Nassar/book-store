@@ -17,8 +17,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 
 import static org.mockito.Mockito.*;
 
@@ -43,7 +43,7 @@ public class BookServiceImplUnitTest {
 		book.setName("book to test JUnit1");
 		book.setCategory("Suspense");
 		book.setPrice(1.23);
-		book.setPublish_date(LocalDate.now());
+		book.setPublish_date(new Date(System.currentTimeMillis()));
 		book.setQuantity(22);
 		book.setSold(0);
 	}

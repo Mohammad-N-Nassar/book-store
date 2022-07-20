@@ -1,21 +1,28 @@
 package com.example.book_store.model;
 
+import com.example.book_store.serialize.ObjectIdDeserializer;
+import com.example.book_store.serialize.ObjectIdSerializer;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+
 import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.Id;
+
 import org.bson.types.ObjectId;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity("order")
 public class Order {
 	@Id
-	@JsonSerialize(using= ToStringSerializer.class)
+	@JsonSerialize(using = ObjectIdSerializer.class)
+	@JsonDeserialize(using = ObjectIdDeserializer.class)
 	private ObjectId orderId;
-	@JsonSerialize(using= ToStringSerializer.class)
+	@JsonSerialize(using = ObjectIdSerializer.class)
+	@JsonDeserialize(using = ObjectIdDeserializer.class)
 	private ObjectId buyerId;
-	private LocalDateTime timeStamp;
+	private Date timeStamp;
 	private BillDto billInfo;
 
 	public ObjectId getOrderId() {
@@ -34,11 +41,11 @@ public class Order {
 		this.buyerId = buyerId;
 	}
 
-	public LocalDateTime getTimeStamp() {
+	public Date getTimeStamp() {
 		return timeStamp;
 	}
 
-	public void setTimeStamp(LocalDateTime timeStamp) {
+	public void setTimeStamp(Date timeStamp) {
 		this.timeStamp = timeStamp;
 	}
 

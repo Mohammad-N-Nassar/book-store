@@ -1,12 +1,17 @@
 package com.example.book_store.model;
 
 
+import com.example.book_store.serialize.ObjectIdDeserializer;
+import com.example.book_store.serialize.ObjectIdSerializer;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+
 import org.bson.types.ObjectId;
 
 public class BillItem {
-	@JsonSerialize(using= ToStringSerializer.class)
+	@JsonSerialize(using = ObjectIdSerializer.class)
+	@JsonDeserialize(using = ObjectIdDeserializer.class)
 	private ObjectId bookId;
 	private String bookName;
 	private int quantity;
